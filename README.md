@@ -18,6 +18,7 @@ Links and resources for this problem:
 https://en.wikipedia.org/wiki/Travelling_salesman_problem
 https://en.wikipedia.org/wiki/Concorde_TSP_Solver
 http://nbviewer.jupyter.org/url/norvig.com/ipython/TSP.ipynb ##Very good resource##
+http://mortada.net/the-traveling-tesla-salesman.html    ##Very good too##
 
 Technical specifications:
 	Main algorithm is going to be written in C++.
