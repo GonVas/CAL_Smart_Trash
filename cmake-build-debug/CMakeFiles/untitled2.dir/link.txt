@@ -1,0 +1,1 @@
+/usr/bin/clang++   -Wall -o3 -g   CMakeFiles/untitled2.dir/main.cpp.o CMakeFiles/untitled2.dir/src/Graph/Test.cpp.o  -o untitled2 

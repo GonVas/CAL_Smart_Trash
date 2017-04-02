@@ -1,4 +1,9 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.6)
+project(untitled2)
 
-project(Smart_Trash)
-add_executable(${PROJECT_NAME} "src/cpp/main.cpp")
+set(CMAKE_CXX_STANDARD 11)
+
+SET (CMAKE_CXX_COMPILER             "/usr/bin/clang++")
+SET (CMAKE_CXX_FLAGS                "-Wall -o3")
+set(SOURCE_FILES main.cpp src/Graph/PriQueue.hpp src/Graph/Test.cpp )
+add_executable(untitled2 ${SOURCE_FILES})
