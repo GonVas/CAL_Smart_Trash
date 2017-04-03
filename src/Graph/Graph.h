@@ -197,6 +197,46 @@ public:
     void unweightedShortestPath(const T &v);
     bool isDAG();
 
+    inline double path_dis(T begin, T end, vector<T> vpath){
+        double total = 0.0;
+        for (int i = 1; i < vpath.size(); ++i) {
+            total += this->getEdge(vpath.at(i - 1), vpath.at(i));
+            total += this->getEdge(begin, vpath.at(0));
+            total += this->getEdge(vpath.at(vpath.size()-1), end);
+        }
+
+        return total;
+    }
+
+    vector<T> TSP_bruteForce(T begin , T end){
+
+        vector<T> cities, max_path_cities;
+
+        for (auto vertex : this->vertexSet)
+            if(vertex->info != begin && vertex->info != end )
+                cities.push_back(vertex->info);
+
+        double max_path = 0.0;
+        sort(cities.begin(), cities.end());
+        do {
+            double path_dis = this->path_dis(begin, end, cities);
+            cout << "Path: ";
+            for (auto city: cities)
+                cout << city <<" ";
+            cout << "   Distance : " << path_dis << endl;
+            if(path_dis > max_path) {
+                path_dis = max_path;
+                max_path_cities = cities;
+            }
+
+        } while (next_permutation(cities.begin(), cities.end()));
+
+        max_path_cities.push_back(end);
+        vector<T> final_answer; final_answer.push_back(begin);
+        final_answer.insert(final_answer.end(), max_path_cities.begin(), max_path_cities.end());
+        return final_answer;
+    }
+
     void addVertexFull(Vertex<T>* newone){
         this->vertexSet.push_back(newone);
     }

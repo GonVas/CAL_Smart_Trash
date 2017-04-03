@@ -219,6 +219,20 @@ void test_TSPmaker(){
     return;
 }
 
+void test_TSPBruteForce(){
+
+    Graph<int> test_Graph = Test_Graph_9();
+
+    Graph<int> TSP_graph = test_Graph.makeTSP();
+
+    vector<int> TSP_path = TSP_graph.TSP_bruteForce(1,5);
+
+    for(auto city: TSP_path)
+        cout << city << endl;
+
+    return;
+}
+
 // void test_floydWarshall() {
 /*Graph<int> myGraph = CreateTestGraph();
 
@@ -257,6 +271,7 @@ void runSuite_GraphAlgorithms() {
     s.push_back(CUTE(test_TotalWeightFrom));
     s.push_back(CUTE(test_makeSymetric));
     s.push_back(CUTE(test_TSPmaker));
+    s.push_back(CUTE(test_TSPBruteForce));
     //s.push_back(CUTE(test_floydWarshall));
 
     cute::ide_listener<> lis;
