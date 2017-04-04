@@ -143,10 +143,10 @@ public:
     Edge(Vertex<T> *d, double w);
     friend class Graph<T>;
     friend class Vertex<T>;
-    Vertex<T> * getDest(){
+    Vertex<T> * getDest() const{
         return this->dest;
     }
-    double getWeight(){
+    double getWeight() const{
         return this->weight;
     }
 
@@ -174,9 +174,9 @@ public:
         return (lhs.weight >= rhs.weight);
     }
 
-    bool isEdgeIn(vector<Edge<T>> exluded){
-        for(auto edge : exluded)
-            if(this->same(edge))
+    bool isEdgeIn(vector<pair<T,T>> exluded, T origin){
+        for(auto p_edge : exluded)
+            if(this->dest->getInfo() == get<1>(p_edge) && origin == get<0>(p_edge) || this->dest->getInfo() == get<0>(p_edge) && origin == get<1>(p_edge) )
                 return true;
         return false;
     }
@@ -243,29 +243,64 @@ public:
         return total;
     }
 
-    double TSP_BB_lowerbound(vector<Edge<T>> exclude_edges){
+    double TSP_BB_lowerbound(vector<pair<T,T>> exclude_edges, vector<pair<T,T>> include_edges){
         double ans = 0.0;
+
+        for(auto Tpair : include_edges)
+            exclude_edges.push_back(Tpair);
 
         for(auto vertex:this->vertexSet) {
             priority_queue<Edge<T>> s_edges;
             for (auto edge: vertex->adj) {
-                if (!edge.isEdgeIn(exclude_edges))
+                if (!edge.isEdgeIn(exclude_edges, vertex->info))
                     s_edges.push(edge);
             }
-            ans += s_edges.top().weight;
-            s_edges.pop();
-            ans += s_edges.top().weight;
+            int left = 2;
+
+            double init_ans = ans;
+
+            for(int i = 0 ; i<  include_edges.size(); i++ )
+                if(get<0>(include_edges.at(i)) == vertex->info || get<1>(include_edges.at(i)) == vertex->info){
+                    ans += this->getEdge(get<0>(include_edges[i]), get<1>(include_edges.at(i)) );
+                     left--;
+                }
+
+            for (int i = 0; i < left; ++i) {
+                ans += s_edges.top().weight;
+                s_edges.pop();
+            }
         }
         return ans*0.5;
     }
 
     //http://lcm.csa.iisc.ernet.in/dsa/node187.html#fig:tspbb
     //http://stackoverflow.com/questions/22985590/calculating-the-held-karp-lower-bound-for-the-traveling-salesmantsp
+    //http://lcm.csa.iisc.ernet.in/dsa/node187.html
+    //https://ocw.mit.edu/courses/sloan-school-of-management/15-053-optimization-methods-in-management-science-spring-2013/tutorials/MIT15_053S13_tut10.pdf
+    //https://web.archive.org/web/20160520165234/http://lcm.csa.iisc.ernet.in/dsa/node187.html
+    //https://en.wikipedia.org/wiki/Travelling_salesman_problem#Related_problems
+    //http://stackoverflow.com/questions/22985590/calculating-the-held-karp-lower-bound-for-the-traveling-salesmantsp
+    //http://ijair.jctjournals.com/oct2012/t121015.pdf
+    //https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm
+    //http://artint.info/html/ArtInt_63.html
+    //https://optimization.mccormick.northwestern.edu/index.php/Branch_and_bound_(BB)
 
     pair<vector<T>,double> TSP_BranchBound(T begin , T end) {
         vector<T> cities, max_path_cities;
+        vector<pair<T,T>> excluded, included;
+
+        PriQueue<pair<pair<T,T>,bool>, double> waiting_nodes; //Priqueue with a exclusion and inclusion and bound
+
+        double best_sol = 999999999999999999999999.9; //LOL
+        double best_bound = this->TSP_BB_lowerbound(excluded, included);
+        //Priqueue with a node and its bound
 
 
+        //Put root node
+        waiting_nodes.addWithPriority()
+        while(PriQueue.size() != 0){
+
+        }
 
         return pair<vector<T>,double>(max_path_cities, 10.0);
     }

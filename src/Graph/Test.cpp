@@ -265,20 +265,40 @@ void test_LowerBound(){
 
     pair<vector<int>,double> TSP_path = TSP_graph.TSP_bruteForce(1,5);
 
-    vector<Edge<int>> excluded;
+    vector<pair<int, int>> excluded, included;
 
-      ASSERT_LESS_EQUAL(TSP_graph.TSP_BB_lowerbound(excluded), 43);
-      ASSERT_GREATER_EQUAL(TSP_graph.TSP_BB_lowerbound(excluded), 38);
+      ASSERT_LESS_EQUAL(TSP_graph.TSP_BB_lowerbound(excluded, included), 43);
+      ASSERT_GREATER_EQUAL(TSP_graph.TSP_BB_lowerbound(excluded, included), 38);
 
     Graph<int> Test_graph = TSP_smallTestGraph();
 
     TSP_path = Test_graph.TSP_bruteForce(1,1);
 
+    ASSERT_EQUAL_DELTA(42.5, TSP_graph.TSP_BB_lowerbound(excluded, included), 0.1);
    // ASSERT_LESS_EQUAL(Test_graph.TSP_BB_lowerbound(get<0>(TSP_path)), 19);
    // ASSERT_GREATER_EQUAL(Test_graph.TSP_BB_lowerbound(get<0>(TSP_path)), 16);
 
-    ASSERT_EQUAL_DELTA(17.5, Test_graph.TSP_BB_lowerbound(excluded), 0.1);
+    ASSERT_EQUAL_DELTA(17.5, Test_graph.TSP_BB_lowerbound(excluded, included), 0.1);
 
+    excluded.push_back(pair<int,int>(2,3));
+    included.push_back(pair<int,int>(1,5));
+
+    ASSERT_EQUAL_DELTA(20.5, Test_graph.TSP_BB_lowerbound(excluded, included), 0.1);
+
+    excluded.clear(); excluded.push_back(pair<int,int>(1,3));
+    included.clear();
+
+    ASSERT_EQUAL_DELTA(18.0, Test_graph.TSP_BB_lowerbound(excluded, included), 0.1);
+
+    excluded.clear(); excluded.push_back(pair<int,int>(1,5)); excluded.push_back(pair<int,int>(1,3));
+    included.clear(); included.push_back(pair<int,int>(1,4)); included.push_back(pair<int,int>(1,2));
+
+    ASSERT_EQUAL_DELTA(18.0, Test_graph.TSP_BB_lowerbound(excluded, included), 0.1);
+
+    excluded.clear(); excluded.push_back(pair<int,int>(1,3));
+    included.clear(); included.push_back(pair<int,int>(1,5)); included.push_back(pair<int,int>(1,3));
+
+    ASSERT_EQUAL_DELTA(21.0, Test_graph.TSP_BB_lowerbound(excluded, included), 0.1);
 
 }
 
@@ -302,7 +322,16 @@ void test_TSPBranchBound(){
     real_ans.push_back(3); real_ans.push_back(9); real_ans.push_back(4); real_ans.push_back(5);
 
     ASSERT_EQUAL(real_ans, get<0>(TSP_path));
-    ASSERT_EQUAL(107, get<1>(TSP_path));
+    ASSERT_EQUAL(42, get<1>(TSP_path));
+
+    Graph<int> Test_graph = TSP_smallTestGraph();
+    TSP_path = Test_graph.TSP_bruteForce(1,1);
+
+    real_ans.push_back(1); real_ans.push_back(3); real_ans.push_back(2); real_ans.push_back(5); real_ans.push_back(4);
+    real_ans.push_back(1);
+
+    ASSERT_EQUAL(real_ans, get<0>(TSP_path));
+    ASSERT_EQUAL(19, get<1>(TSP_path));
 
     return;
 }
@@ -346,8 +375,8 @@ void runSuite_GraphAlgorithms() {
     s.push_back(CUTE(test_makeSymetric));
     s.push_back(CUTE(test_TSPmaker));
     s.push_back(CUTE(test_TSPBruteForce));
-    s.push_back(CUTE(test_TSPBranchBound));
     s.push_back(CUTE(test_LowerBound));
+    s.push_back(CUTE(test_TSPBranchBound));
     //s.push_back(CUTE(test_floydWarshall));
 
     cute::ide_listener<> lis;

@@ -156,6 +156,30 @@ void test_DeacreaseWithPri(){
     return;
 }
 
+void test_Erase(){
+
+    PriQueue<int, float> pq;
+    pq.setLess_op(true);
+    ASSERT_EQUAL(true, pq.isLess_op());
+    pq.addWithPriority(1, 6.6);
+    pq.addWithPriority(2, 4.2);
+    pq.addWithPriority(3, 5.45);
+    pq.addWithPriority(4, 1.5);
+    pq.addWithPriority(5, 3.4);
+    ASSERT_EQUAL(true, pq.isHeap());
+    ASSERT_EQUAL(5, pq.size());
+    ASSERT_EQUAL(4, pq.peakTop());
+
+    ASSERT_EQUAL(true, pq.eraseElem(2));
+    ASSERT_EQUAL(4, pq.size());
+    ASSERT_EQUAL(4, pq.peakTop());
+
+    ASSERT_EQUAL(false, pq.eraseElem(2));
+    ASSERT_EQUAL(true, pq.eraseElem(4));
+    ASSERT_EQUAL(3, pq.size());
+    ASSERT_EQUAL(5, pq.peakTop());
+}
+
 void test_DifferentTypes(){
 
     PriQueue<int, float> pq;
@@ -216,6 +240,7 @@ void runSuite_PriQueue() {
     s.push_back(CUTE(test_AddWithPri));
     s.push_back(CUTE(test_DeacreaseWithPri));
     s.push_back(CUTE(test_DifferentTypes));
+    s.push_back(CUTE(test_Erase));
 
     cute::ide_listener<> lis;
     cute::makeRunner(lis)(s, "PriQueue Testing");

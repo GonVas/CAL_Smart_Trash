@@ -52,6 +52,8 @@ public:
     bool isLess_op() const;
     void setLess_op(bool less_op);
 
+    bool eraseElem(T elem);
+
     //Testing
     bool isHeap();
 
@@ -129,6 +131,20 @@ void PriQueue<T,K>::remake() {
 template<class T, class K>
 bool PriQueue<T,K>::isHeap() {
     return std::is_heap(this->data.begin(), this->data.end(), this->comp_func);
+}
+
+template<class T, class K>
+bool PriQueue<T,K>::eraseElem(T elem) {
+
+    for (int i = 0; i < this->data.size(); ++i)
+        if((this->data.at(i)).elem == elem){
+            this->data.erase(this->data.begin() + i);
+            return true;
+        }
+
+
+
+    return false;
 }
 
 #endif //UNTITLED2_PRIQUEUE_HPP
