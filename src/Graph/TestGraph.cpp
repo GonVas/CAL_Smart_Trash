@@ -63,6 +63,54 @@ Graph<int> Test_Graph_9() {
     return myGraph;
 }
 
+Graph<int> TSP_smallTestGraph(){
+    Graph<int> myGraph;
+
+    for (int i = 1; i < 6; i++)
+        myGraph.addVertex(i);
+
+    myGraph.addEdge(1, 2, 3);
+    myGraph.addEdge(1, 3, 4);
+    myGraph.addEdge(1, 4, 2);
+    myGraph.addEdge(1, 5, 7);
+
+    myGraph.addEdge(2, 3, 4);
+    myGraph.addEdge(2, 4, 6);
+    myGraph.addEdge(2, 5, 3);
+    myGraph.addEdge(2, 1, 3);
+
+    myGraph.addEdge(3, 1, 4);
+    myGraph.addEdge(3, 2, 4);
+    myGraph.addEdge(3, 4, 5);
+    myGraph.addEdge(3, 5, 8);
+
+    myGraph.addEdge(4, 1, 2);
+    myGraph.addEdge(4, 2, 6);
+    myGraph.addEdge(4, 3, 5);
+    myGraph.addEdge(4, 5, 6);
+
+    myGraph.addEdge(5, 1, 7);
+    myGraph.addEdge(5, 2, 3);
+    myGraph.addEdge(5, 3, 8);
+    myGraph.addEdge(5, 4, 6);
+
+    return myGraph;
+}
+
+void Test_TSPsmallgraph(){
+    Graph<int> myGraph = TSP_smallTestGraph();
+
+    ASSERT_EQUAL(5, myGraph.getNumVertex());
+
+    ASSERT_EQUAL(4, myGraph.getVertexSet()[0]->get_adj().size());
+    ASSERT_EQUAL(4, myGraph.getVertexSet()[1]->get_adj().size());
+    ASSERT_EQUAL(4, myGraph.getVertexSet()[2]->get_adj().size());
+    ASSERT_EQUAL(4, myGraph.getVertexSet()[3]->get_adj().size());
+    ASSERT_EQUAL(4, myGraph.getVertexSet()[4]->get_adj().size());
+
+    return;
+}
+
 void test_equalEdge() {
   //  std::cout << " Starting equalEdge test. ";
     Vertex<int> v1(5);
@@ -74,6 +122,9 @@ void test_equalEdge() {
     Edge<int> e3(&v2, 5);
     ASSERT_EQUAL(true, e1 == e2);
     ASSERT_EQUAL(false, e1 == e3);
+
+    ASSERT_EQUAL(true, e1.same(e2));
+    ASSERT_EQUAL(true, e1.same(e3));
 }
 
 void test_equalVertex() {
@@ -138,6 +189,7 @@ void runSuite_Graph() {
     s.push_back(CUTE(test_equalEdge));
     s.push_back(CUTE(test_equalVertex));
     s.push_back(CUTE(test_equalGraph));
+    s.push_back(CUTE(TSP_smallTestGraph));
 
     cute::ide_listener<> lis;
     cute::makeRunner(lis)(s, "Graph Testing");

@@ -21,3 +21,38 @@
                  Q.decrease_priority(v, alt)
 
      return dist[], prev[]
+
+====================================================================================================================
+BRANCH AND BOUND
+=======================================================================================================================
+
+ Store root node in waiting node list
+   while waiting node list is not empty do
+   {Node selection}
+   Choose a node from the waiting node list
+   Remove it from the waiting node list
+   Solve subproblem
+   if infeasible then
+     Node is fathomed
+   else if optimal then
+     if integer solution then
+       if obj > LB then
+         {Better integer solution found}
+         LB:=obj
+         Remove nodes j from list with UBj < LB
+       end if
+       else
+         {Variable selection}
+         Find variable xk with fractional value v
+         Create node jnew with bound xk \le \llcornerv\lrcorner
+         UBjnew:=obj
+         Store node jnew in waiting node list
+         Create node jnew with bound xk \ge \ulcornerv\urcorner
+         UB_jnew:=obj
+         Store node jnew in waiting node list
+       end if
+     else
+       Stop: problem in solving subproblem
+     end if
+     UB=maxjUBj
+   end while

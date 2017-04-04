@@ -6,6 +6,7 @@
 #include "TestGraph.cpp"
 #include "PriQueue.hpp"
 #include <sstream>
+#include <utility>
 
 using namespace std;
 
@@ -225,10 +226,83 @@ void test_TSPBruteForce(){
 
     Graph<int> TSP_graph = test_Graph.makeTSP();
 
-    vector<int> TSP_path = TSP_graph.TSP_bruteForce(1,5);
+    pair<vector<int>,double> TSP_path = TSP_graph.TSP_bruteForce(1,5);
 
-    for(auto city: TSP_path)
-        cout << city << endl;
+    /*
+    cout << "\n";
+    for(auto city: get<0>(TSP_path))
+        cout << city-1 << " ";
+
+    cout << " Min Distance : " << (get<1>(TSP_path)) << endl;
+    */
+
+    vector<int> real_ans;
+    real_ans.push_back(1); real_ans.push_back(2); real_ans.push_back(8); real_ans.push_back(7); real_ans.push_back(6);
+    real_ans.push_back(3); real_ans.push_back(9); real_ans.push_back(4); real_ans.push_back(5);
+
+    ASSERT_EQUAL(real_ans, get<0>(TSP_path));
+    ASSERT_EQUAL(42, get<1>(TSP_path));
+    real_ans.clear();
+
+    Graph<int> Test_graph = TSP_smallTestGraph();
+
+    TSP_path = Test_graph.TSP_bruteForce(1,1);
+
+    real_ans.push_back(1); real_ans.push_back(3); real_ans.push_back(2); real_ans.push_back(5); real_ans.push_back(4);
+    real_ans.push_back(1);
+
+    ASSERT_EQUAL(real_ans, get<0>(TSP_path));
+    ASSERT_EQUAL(19, get<1>(TSP_path));
+    real_ans.clear();
+
+    return;
+}
+
+void test_LowerBound(){
+    Graph<int> test_Graph = Test_Graph_9();
+
+    Graph<int> TSP_graph = test_Graph.makeTSP();
+
+    pair<vector<int>,double> TSP_path = TSP_graph.TSP_bruteForce(1,5);
+
+    vector<Edge<int>> excluded;
+
+      ASSERT_LESS_EQUAL(TSP_graph.TSP_BB_lowerbound(excluded), 43);
+      ASSERT_GREATER_EQUAL(TSP_graph.TSP_BB_lowerbound(excluded), 38);
+
+    Graph<int> Test_graph = TSP_smallTestGraph();
+
+    TSP_path = Test_graph.TSP_bruteForce(1,1);
+
+   // ASSERT_LESS_EQUAL(Test_graph.TSP_BB_lowerbound(get<0>(TSP_path)), 19);
+   // ASSERT_GREATER_EQUAL(Test_graph.TSP_BB_lowerbound(get<0>(TSP_path)), 16);
+
+    ASSERT_EQUAL_DELTA(17.5, Test_graph.TSP_BB_lowerbound(excluded), 0.1);
+
+
+}
+
+void test_TSPBranchBound(){
+
+    Graph<int> test_Graph = Test_Graph_9();
+
+    Graph<int> TSP_graph = test_Graph.makeTSP();
+
+    pair<vector<int>,double> TSP_path = TSP_graph.TSP_BranchBound(1,5);
+
+    /*
+    for(auto city: get<0>(TSP_path))
+        cout << city-1 << " ";
+
+    cout << " Min Distance : " << (get<1>(TSP_path)) << endl;
+    */
+
+    vector<int> real_ans;
+    real_ans.push_back(1); real_ans.push_back(2); real_ans.push_back(8); real_ans.push_back(7); real_ans.push_back(6);
+    real_ans.push_back(3); real_ans.push_back(9); real_ans.push_back(4); real_ans.push_back(5);
+
+    ASSERT_EQUAL(real_ans, get<0>(TSP_path));
+    ASSERT_EQUAL(107, get<1>(TSP_path));
 
     return;
 }
@@ -272,6 +346,8 @@ void runSuite_GraphAlgorithms() {
     s.push_back(CUTE(test_makeSymetric));
     s.push_back(CUTE(test_TSPmaker));
     s.push_back(CUTE(test_TSPBruteForce));
+    s.push_back(CUTE(test_TSPBranchBound));
+    s.push_back(CUTE(test_LowerBound));
     //s.push_back(CUTE(test_floydWarshall));
 
     cute::ide_listener<> lis;

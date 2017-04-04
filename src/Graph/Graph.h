@@ -25,6 +25,16 @@ const int DONE_VISITED = 2;
 const int INT_INFINITY = std::numeric_limits<int>::max();
 
 /*
+template <class T>
+struct edgePQCompare
+{
+    bool operator()(const Edge<T>& l, const Edge<T>& r)
+    {
+        return l.getWeight() < r.getWeight();
+    }
+};*/
+
+/*
  * ================================================================================================
  * Class Vertex
  * ================================================================================================
@@ -75,8 +85,6 @@ public:
         if (this->info != rhs.info || this->adj.size() != rhs.adj.size() ||
             this->indegree != rhs.indegree || this->dist != rhs.dist)
             return false;
-
-
         return true;
     }
 
@@ -138,6 +146,9 @@ public:
     Vertex<T> * getDest(){
         return this->dest;
     }
+    double getWeight(){
+        return this->weight;
+    }
 
     //===============================
     inline bool operator==(const Edge<T> &rhs) {
@@ -145,6 +156,31 @@ public:
             return true;
         return false;
     }
+
+    inline bool same(const Edge<T> &rhs) {
+        if (this->weight == rhs.weight && this->dest->getInfo() == rhs.dest->getInfo())
+            return true;
+        return false;
+    }
+
+    inline bool less(const Edge<T> &rhs) {
+        if(this->weight < rhs.weight)
+            return true;
+        else
+            return false;
+    }
+
+   friend inline bool operator< (const Edge<T> &lhs, const Edge<T> &rhs){
+        return (lhs.weight >= rhs.weight);
+    }
+
+    bool isEdgeIn(vector<Edge<T>> exluded){
+        for(auto edge : exluded)
+            if(this->same(edge))
+                return true;
+        return false;
+    }
+
     //===============================
 };
 template <class T> Edge<T>::Edge(Vertex<T> *d, double w) : dest(d), weight(w) {}
@@ -201,14 +237,40 @@ public:
         double total = 0.0;
         for (int i = 1; i < vpath.size(); ++i) {
             total += this->getEdge(vpath.at(i - 1), vpath.at(i));
-            total += this->getEdge(begin, vpath.at(0));
-            total += this->getEdge(vpath.at(vpath.size()-1), end);
         }
-
+        total += this->getEdge(begin, vpath.at(0));
+        total += this->getEdge(vpath.at(vpath.size()-1), end);
         return total;
     }
 
-    vector<T> TSP_bruteForce(T begin , T end){
+    double TSP_BB_lowerbound(vector<Edge<T>> exclude_edges){
+        double ans = 0.0;
+
+        for(auto vertex:this->vertexSet) {
+            priority_queue<Edge<T>> s_edges;
+            for (auto edge: vertex->adj) {
+                if (!edge.isEdgeIn(exclude_edges))
+                    s_edges.push(edge);
+            }
+            ans += s_edges.top().weight;
+            s_edges.pop();
+            ans += s_edges.top().weight;
+        }
+        return ans*0.5;
+    }
+
+    //http://lcm.csa.iisc.ernet.in/dsa/node187.html#fig:tspbb
+    //http://stackoverflow.com/questions/22985590/calculating-the-held-karp-lower-bound-for-the-traveling-salesmantsp
+
+    pair<vector<T>,double> TSP_BranchBound(T begin , T end) {
+        vector<T> cities, max_path_cities;
+
+
+
+        return pair<vector<T>,double>(max_path_cities, 10.0);
+    }
+
+    pair<vector<T>,double> TSP_bruteForce(T begin , T end){
 
         vector<T> cities, max_path_cities;
 
@@ -220,12 +282,12 @@ public:
         sort(cities.begin(), cities.end());
         do {
             double path_dis = this->path_dis(begin, end, cities);
-            cout << "Path: ";
-            for (auto city: cities)
-                cout << city <<" ";
-            cout << "   Distance : " << path_dis << endl;
-            if(path_dis > max_path) {
-                path_dis = max_path;
+           // cout << "Path: ";
+           // for (auto city: cities)
+           //     cout << city <<" ";
+           // cout << "   Distance : " << path_dis << endl;
+            if(path_dis < max_path || max_path < 0.1) {
+                max_path = path_dis;
                 max_path_cities = cities;
             }
 
@@ -234,7 +296,7 @@ public:
         max_path_cities.push_back(end);
         vector<T> final_answer; final_answer.push_back(begin);
         final_answer.insert(final_answer.end(), max_path_cities.begin(), max_path_cities.end());
-        return final_answer;
+        return pair<vector<T>, double>(final_answer,max_path);
     }
 
     void addVertexFull(Vertex<T>* newone){
