@@ -4,8 +4,10 @@
 CMakeFiles/untitled2.dir/main.cpp.o
  /home/gonvas/CLionProjects/untitled2/main.cpp
 CMakeFiles/untitled2.dir/src/Graph/Test.cpp.o
+ /home/gonvas/CLionProjects/untitled2/src/Graph/DisjointSet.hpp
  /home/gonvas/CLionProjects/untitled2/src/Graph/Graph.h
  /home/gonvas/CLionProjects/untitled2/src/Graph/PriQueue.hpp
  /home/gonvas/CLionProjects/untitled2/src/Graph/Test.cpp
  /home/gonvas/CLionProjects/untitled2/src/Graph/TestGraph.cpp
  /home/gonvas/CLionProjects/untitled2/src/Graph/TestPriQueue.cpp
+ /home/gonvas/CLionProjects/untitled2/src/Graph/test_DisjointSet.cpp

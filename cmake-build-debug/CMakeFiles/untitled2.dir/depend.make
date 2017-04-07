@@ -3,9 +3,11 @@
 
 CMakeFiles/untitled2.dir/main.cpp.o: ../main.cpp
 
+CMakeFiles/untitled2.dir/src/Graph/Test.cpp.o: ../src/Graph/DisjointSet.hpp
 CMakeFiles/untitled2.dir/src/Graph/Test.cpp.o: ../src/Graph/Graph.h
 CMakeFiles/untitled2.dir/src/Graph/Test.cpp.o: ../src/Graph/PriQueue.hpp
 CMakeFiles/untitled2.dir/src/Graph/Test.cpp.o: ../src/Graph/Test.cpp
 CMakeFiles/untitled2.dir/src/Graph/Test.cpp.o: ../src/Graph/TestGraph.cpp
 CMakeFiles/untitled2.dir/src/Graph/Test.cpp.o: ../src/Graph/TestPriQueue.cpp
+CMakeFiles/untitled2.dir/src/Graph/Test.cpp.o: ../src/Graph/test_DisjointSet.cpp
 

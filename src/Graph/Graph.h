@@ -215,6 +215,8 @@ template <class T> class Graph {
     int ** W;   //weight
     int ** P;   //path
 
+    map<pair<T,T>, vector<T>> path_reconstruc;
+
     T * ghost_node;
     T ghost_node_info;
 
@@ -238,10 +240,15 @@ public:
     vector<T> getPath(const T &origin, const T &dest);
     void unweightedShortestPath(const T &v);
     bool isDAG();
-/*
-    vector<T> void minSpanningTree_Kruskal(){
 
-    }*/
+    pair<vector<T>,double> minSpanningTree(){
+
+        vector<T> final;
+        double final_dis = 0.0;
+
+        return pair<vector<T>,double>(final, final_dis);
+
+    }
 
     void initVisited(){
         for(auto vertex : this->getVertexSet())
@@ -395,6 +402,39 @@ vector<T> getfloydWarshallPath(const T &origin, const T &dest){
 
     return res;
 }
+
+    Graph<T> makeTSPres(vector<T> trash_cans){
+
+        Graph<T> TSPgraph;
+        this->path_reconstruc.clear();
+        this->makeSymetric();
+        for(auto vertex : trash_cans)
+            TSPgraph.addVertex(vertex);
+
+        for(auto vertex : trash_cans){
+            this->dijkstraShortestPath(vertex);
+            double total_weight = 0;
+            for(auto sub_vertex : trash_cans) {
+                if(sub_vertex != vertex) {
+                    total_weight = this->getTotalWeightfromPath(vertex, sub_vertex);
+                    pair<T,T> from_to = pair<T,T>(vertex, sub_vertex) ;
+                    vector<T> from_to_path = this->getPath(vertex, sub_vertex);
+                    TSPgraph.path_reconstruc.insert(pair<pair<T,T>, vector<T>>(from_to, from_to_path));
+                    TSPgraph.addEdge( vertex, sub_vertex , total_weight);
+                }
+            }
+        }
+        return TSPgraph;
+    }
+
+    pair<vector<T>, double> getPathRecons(T s, T dest){
+        vector<T> final_path;
+
+        final_path = this->path_reconstruc[pair<T,T>(s, dest)];
+
+        return pair<vector<T>,double>(final_path, this->getEdge(s, dest));
+    }
+
 
 void getfloydWarshallPathAux(int index1, int index2, vector<T> & res)
 {

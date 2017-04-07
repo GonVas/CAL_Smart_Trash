@@ -10,6 +10,8 @@
 iostream
 -
 
+/home/gonvas/CLionProjects/untitled2/src/Graph/DisjointSet.hpp
+
 /home/gonvas/CLionProjects/untitled2/src/Graph/Graph.h
 cmath
 -
@@ -53,6 +55,8 @@ TestPriQueue.cpp
 /home/gonvas/CLionProjects/untitled2/src/Graph/TestPriQueue.cpp
 TestGraph.cpp
 /home/gonvas/CLionProjects/untitled2/src/Graph/TestGraph.cpp
+test_DisjointSet.cpp
+/home/gonvas/CLionProjects/untitled2/src/Graph/test_DisjointSet.cpp
 algorithm
 -
 PriQueue.hpp
@@ -81,6 +85,18 @@ CUTE/cute/ide_listener.h
 /home/gonvas/CLionProjects/untitled2/src/Graph/CUTE/cute/ide_listener.h
 PriQueue.hpp
 /home/gonvas/CLionProjects/untitled2/src/Graph/PriQueue.hpp
+sstream
+-
+
+/home/gonvas/CLionProjects/untitled2/src/Graph/test_DisjointSet.cpp
+CUTE/cute/cute.h
+/home/gonvas/CLionProjects/untitled2/src/Graph/CUTE/cute/cute.h
+CUTE/cute/cute_runner.h
+/home/gonvas/CLionProjects/untitled2/src/Graph/CUTE/cute/cute_runner.h
+CUTE/cute/ide_listener.h
+/home/gonvas/CLionProjects/untitled2/src/Graph/CUTE/cute/ide_listener.h
+DisjointSet.hpp
+/home/gonvas/CLionProjects/untitled2/src/Graph/DisjointSet.hpp
 sstream
 -
 

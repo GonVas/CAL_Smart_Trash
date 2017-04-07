@@ -4,6 +4,7 @@
 #include "Graph.h"
 #include "TestPriQueue.cpp"
 #include "TestGraph.cpp"
+#include "test_DisjointSet.cpp"
 #include <algorithm>
 #include "PriQueue.hpp"
 #include <sstream>
@@ -415,10 +416,50 @@ void test_minimalSpanTree(){
 
     Graph<int> TSP_graph = test_Graph.makeTSP();
 
+    pair<vector<int>,double> mini_span = TSP_graph.minSpanningTree();
+
+    ASSERT_EQUAL(TSP_graph.getNumVertex(), get<0>(mini_span).size());
+
+    for(auto vertex: TSP_graph.getVertexSet()){
+        bool in = false;
+        for(auto v : get<0>(mini_span))
+            if(vertex->getInfo() == v)
+                in = true;
+        ASSERT_EQUAL(true, in);
+    }
 
 }
 
-///@todo PathReconstruction: Compute the path reconstruction for the TSP problem (turn path to work with the streets)
+void test_PathReconstruction(){
+
+    Graph<int> test_Graph = Test_Graph_9();
+
+    vector<int> trash_cans; trash_cans.push_back(1);  trash_cans.push_back(4);  trash_cans.push_back(6); trash_cans.push_back(5); trash_cans.push_back(8);
+
+    Graph<int> TSPres = test_Graph.makeTSPres(trash_cans);
+
+    ASSERT_EQUAL(trash_cans.size(), TSPres.getNumVertex());
+
+    for(auto vertex: TSPres.getVertexSet()) {
+        bool kill = false;
+        if (vertex->getInfo() != 1 && vertex->getInfo() != 4 && vertex->getInfo() != 6 && vertex->getInfo() != 5 && vertex->getInfo() != 8  )
+            kill = true;
+        ASSERT_EQUAL(false, kill);
+    }
+
+    pair<vector<int>, double> path = TSPres.getPathRecons(1,5);
+
+    stringstream ss;
+
+    ss.str("");
+    for(unsigned int i = 0; i < get<0>(path).size(); i++) {
+        ss << get<0>(path)[i] << " ";
+    }
+    ASSERT_EQUAL("1 8 7 6 5 ", ss.str());
+
+}
+
+///@todo Implement DisjointSet : for use in the Brosudal minimal spanning tree
 
 ////@todo Implement User Interface: Take the User input (algorithm selection) and make a run from start to finsh with a OPSTM
 
@@ -463,11 +504,13 @@ void runSuite_GraphAlgorithms() {
     s.push_back(CUTE(test_makeSymetric));
     s.push_back(CUTE(test_TSPmaker));
     s.push_back(CUTE(test_TSPBruteForce));
-    s.push_back(CUTE(test_LowerBound));
-    s.push_back(CUTE(test_GoodLowerBound));
-    s.push_back(CUTE(test_TSPBranchBound));
+   // s.push_back(CUTE(test_LowerBound));
+  //  s.push_back(CUTE(test_GoodLowerBound));
+  //  s.push_back(CUTE(test_TSPBranchBound));
     s.push_back(CUTE(test_floydWarshall));
     s.push_back(CUTE(test_GreadyAlgorithm));
+    s.push_back(CUTE(test_minimalSpanTree));
+    s.push_back(CUTE(test_PathReconstruction));
 
     cute::ide_listener<> lis;
     cute::makeRunner(lis)(s, "Graph Algorithms Testing");
@@ -475,6 +518,7 @@ void runSuite_GraphAlgorithms() {
 
 int main() {
     runSuite_PriQueue();
+    runSuite_DisjointSet();
     runSuite_Graph();
     runSuite_GraphAlgorithms();
     return 0;

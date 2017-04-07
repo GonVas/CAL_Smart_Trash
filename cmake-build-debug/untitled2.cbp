@@ -87,6 +87,9 @@
 		<Unit filename="/home/gonvas/CLionProjects/untitled2/main.cpp">
 			<Option target="untitled2"/>
 		</Unit>
+		<Unit filename="/home/gonvas/CLionProjects/untitled2/src/Graph/DisjointSet.hpp">
+			<Option target="untitled2"/>
+		</Unit>
 		<Unit filename="/home/gonvas/CLionProjects/untitled2/src/Graph/PriQueue.hpp">
 			<Option target="untitled2"/>
 		</Unit>
