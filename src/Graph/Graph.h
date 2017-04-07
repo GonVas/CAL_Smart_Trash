@@ -212,6 +212,12 @@ template <class T> class Graph {
     void dfsVisit();
     void getPathTo(Vertex<T> *origin, list<T> &res);
 
+    int ** W;   //weight
+    int ** P;   //path
+
+    T * ghost_node;
+    T ghost_node_info;
+
 public:
     bool addVertex(const T &in);
     bool addEdge(const T &sourc, const T &dest, double w);
@@ -232,6 +238,210 @@ public:
     vector<T> getPath(const T &origin, const T &dest);
     void unweightedShortestPath(const T &v);
     bool isDAG();
+/*
+    vector<T> void minSpanningTree_Kruskal(){
+
+    }*/
+
+    void initVisited(){
+        for(auto vertex : this->getVertexSet())
+            vertex->visited = false;
+    }
+
+    pair<vector<T>,double> TSP_Gready(T s, T dest){
+        double res = 0.0;
+        vector<T> final_path;
+
+        this->initVisited();
+/*
+        PriQueue<Edge<T>, double> init_edges;
+
+        for(auto edge: this->getVertexSet().at(this->getNumVertex()-1)->adj)
+            init_edges.addWithPriority(edge, edge.weight);
+
+        final_path.push_back(s);
+        T first = init_edges.extractTop().dest->info;
+        final_path.push_back(first);
+        res += init_edges.peakTop().weight;
+
+        for(auto vertex: this->getVertexSet() )
+            if(vertex->info != s || vertex->info != dest || vertex->visited != true || vertex->info !=  first ) {
+                PriQueue<Edge<T>, double> v_edges;
+                for (auto edge: vertex->adj)
+                    if(edge.dest->visited == false || edge.dest->info != dest ||edge.dest->info != s)
+                        v_edges.addWithPriority(edge, edge.weight);
+                final_path.push_back(v_edges.extractTop().dest->info);
+                res += v_edges.peakTop().weight;
+                vertex->visited = true;
+            } */
+
+        Vertex<T> * vertex_to_look;
+
+        vector<Vertex<T>*> p_final_path;
+
+        p_final_path.push_back( this->getVertex(s));
+
+        for(int i = 0; i < this->getNumVertex() -1 ; i++) {
+            vertex_to_look = p_final_path.at(p_final_path.size() - 1);
+            PriQueue<Edge<T>, double> v_edges;
+            for (auto edge: vertex_to_look->adj)
+                if(edge.dest->visited == false || edge.dest->info != dest ||edge.dest->info != s )
+                    v_edges.addWithPriority(edge, edge.weight);
+            p_final_path.push_back(v_edges.peakTop().dest);
+            cout << "Added from " << p_final_path[p_final_path.size()-2]->info << " to : " << p_final_path[p_final_path.size()-1]->info << " dis : " << v_edges.peakTop().weight;
+            res += v_edges.extractTop().weight;
+            vertex_to_look->visited = true;
+        }
+
+        for(int i = 0; i < p_final_path.size(); i++)
+            final_path.push_back(p_final_path.at(i)->info);
+
+       // if(s != dest)
+            final_path.push_back(dest);
+
+        double initres =res;
+        res += this->getEdge(final_path.at(final_path.size()-2), dest);
+        cout << "Addes to  final " << res -initres << endl;
+
+        cout << "Distance is : " << res << endl;
+        return pair<vector<T>,double>(final_path, res);
+    }
+
+    int edgeCost(int vOrigIndex, int vDestIndex)
+    {
+        if(vertexSet[vOrigIndex] == vertexSet[vDestIndex])
+            return 0;
+
+        for(unsigned int i = 0; i < vertexSet[vOrigIndex]->adj.size(); i++)
+        {
+            if(vertexSet[vOrigIndex]->adj[i].dest == vertexSet[vDestIndex])
+                return vertexSet[vOrigIndex]->adj[i].weight;
+        }
+
+        return INT_INFINITY;
+    }
+
+    void floydWarshallShortestPath(){
+        W = new int * [vertexSet.size()];
+        P = new int * [vertexSet.size()];
+        for(unsigned int i = 0; i < vertexSet.size(); i++)
+        {
+            W[i] = new int[vertexSet.size()];
+            P[i] = new int[vertexSet.size()];
+            for(unsigned int j = 0; j < vertexSet.size(); j++)
+            {
+                W[i][j] = edgeCost(i,j);
+                P[i][j] = -1;
+            }
+        }
+
+
+        for(unsigned int k = 0; k < vertexSet.size(); k++)
+            for(unsigned int i = 0; i < vertexSet.size(); i++)
+                for(unsigned int j = 0; j < vertexSet.size(); j++)
+                {
+                    //se somarmos qualquer coisa ao valor INT_INFINITY, ocorre overflow, o que resulta num valor negativo, logo nem convém considerar essa soma
+                    if(W[i][k] == INT_INFINITY || W[k][j] == INT_INFINITY)
+                        continue;
+
+                    int val = min ( W[i][j], W[i][k]+W[k][j] );
+                    if(val != W[i][j])
+                    {
+                        W[i][j] = val;
+                        P[i][j] = k;
+                    }
+                }
+
+    }
+
+vector<T> getfloydWarshallPath(const T &origin, const T &dest){
+
+    int originIndex = -1, destinationIndex = -1;
+
+    for(unsigned int i = 0; i < vertexSet.size(); i++)
+    {
+        if(vertexSet[i]->info == origin)
+            originIndex = i;
+        if(vertexSet[i]->info == dest)
+            destinationIndex = i;
+
+        if(originIndex != -1 && destinationIndex != -1)
+            break;
+    }
+
+
+    vector<T> res;
+
+    //se nao foi encontrada solucao possivel, retorna lista vazia
+    if(W[originIndex][destinationIndex] == INT_INFINITY)
+        return res;
+
+    res.push_back(vertexSet[originIndex]->info);
+
+    //se houver pontos intermedios...
+    if(P[originIndex][destinationIndex] != -1)
+    {
+        int intermedIndex = P[originIndex][destinationIndex];
+
+        getfloydWarshallPathAux(originIndex, intermedIndex, res);
+
+        res.push_back(vertexSet[intermedIndex]->info);
+
+        getfloydWarshallPathAux(intermedIndex,destinationIndex, res);
+    }
+
+    res.push_back(vertexSet[destinationIndex]->info);
+
+
+    return res;
+}
+
+void getfloydWarshallPathAux(int index1, int index2, vector<T> & res)
+{
+    if(P[index1][index2] != -1)
+    {
+        getfloydWarshallPathAux(index1, P[index1][index2], res);
+
+        res.push_back(vertexSet[P[index1][index2]]->info);
+
+        getfloydWarshallPathAux(P[index1][index2],index2, res);
+    }
+}
+
+    int add_GhostVertex(T s, T end){
+
+        int numb = this->getNumVertex();
+        this->ghost_node_info = numb+1;
+        this->addVertex(numb+1);
+
+        for(auto vertex : this->getVertexSet())
+            if(vertex->info != numb+1) {
+                if (vertex->info == s || vertex->info == end) {
+                    this->addEdge(numb + 1, vertex->info, 0);
+                    this->addEdge(vertex->info, numb + 1, 0);
+                } else {
+                    this->addEdge(numb + 1, vertex->info, INT_INFINITY);
+                    this->addEdge(vertex->info, numb + 1, INT_INFINITY);
+                }
+            }
+        return numb+1;
+    }
+    T last_vertexinfo(){
+        return this->getVertexSet().at(this->getNumVertex())->info;
+    }
+
+    void revert_GhostNode(){
+        for(auto vertex: this->getVertexSet())
+            if(vertex->info !=this->ghost_node_info) {
+                this->removeEdge(vertex->info, this->ghost_node_info);
+                this->removeEdge(this->ghost_node_info, vertex->info);
+            }
+        this->removeVertex(this->ghost_node_info);
+        }
+
+    void make_ClassicTSP(T begin, T end){
+
+    }
 
     inline double path_dis(T begin, T end, vector<T> vpath){
         double total = 0.0;
@@ -270,6 +480,7 @@ public:
                 s_edges.pop();
             }
         }
+
         return ans*0.5;
     }
 
@@ -295,18 +506,24 @@ public:
         double best_bound = this->TSP_BB_lowerbound(excluded, included);
         //Priqueue with a node and its bound
 
-
+/*
         //Put root node
-        waiting_nodes.addWithPriority()
+        waiting_nodes.addWithPriority();
         while(PriQueue.size() != 0){
 
         }
-
+*/
         return pair<vector<T>,double>(max_path_cities, 10.0);
     }
 
     pair<vector<T>,double> TSP_bruteForce(T begin , T end){
 
+        if(begin != end ) {
+            begin = this->add_GhostVertex(begin, end);
+            end = begin;
+        }
+
+        cout << "Begin: " << begin << " End : " << end << endl;
         vector<T> cities, max_path_cities;
 
         for (auto vertex : this->vertexSet)
@@ -331,6 +548,7 @@ public:
         max_path_cities.push_back(end);
         vector<T> final_answer; final_answer.push_back(begin);
         final_answer.insert(final_answer.end(), max_path_cities.begin(), max_path_cities.end());
+        this->revert_GhostNode();
         return pair<vector<T>, double>(final_answer,max_path);
     }
 

@@ -65,7 +65,7 @@ private:
 
     void remake();
 
-    T default_T;
+    //T default_T;
 };
 template<class T, class K>
 void PriQueue<T,K>::addWithPriority(T elem, K criteria) {
@@ -115,7 +115,6 @@ template<class T, class K>
 T PriQueue<T,K>::peakTop() {
     if(this->data.size() > 0)
     return this->data.at(0).elem;
-    return T();
 }
 
 template<class T, class K>

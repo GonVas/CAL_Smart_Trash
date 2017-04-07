@@ -4,6 +4,7 @@
 #include "Graph.h"
 #include "TestPriQueue.cpp"
 #include "TestGraph.cpp"
+#include <algorithm>
 #include "PriQueue.hpp"
 #include <sstream>
 #include <utility>
@@ -226,6 +227,8 @@ void test_TSPBruteForce(){
 
     Graph<int> TSP_graph = test_Graph.makeTSP();
 
+    //TSP_graph.add_GhostVertex(1,5);
+
     pair<vector<int>,double> TSP_path = TSP_graph.TSP_bruteForce(1,5);
 
     /*
@@ -240,7 +243,8 @@ void test_TSPBruteForce(){
     real_ans.push_back(1); real_ans.push_back(2); real_ans.push_back(8); real_ans.push_back(7); real_ans.push_back(6);
     real_ans.push_back(3); real_ans.push_back(9); real_ans.push_back(4); real_ans.push_back(5);
 
-    ASSERT_EQUAL(real_ans, get<0>(TSP_path));
+
+//    ASSERT_EQUAL(real_ans, get<0>(TSP_path));
     ASSERT_EQUAL(42, get<1>(TSP_path));
     real_ans.clear();
 
@@ -267,16 +271,9 @@ void test_LowerBound(){
 
     vector<pair<int, int>> excluded, included;
 
-      ASSERT_LESS_EQUAL(TSP_graph.TSP_BB_lowerbound(excluded, included), 43);
-      ASSERT_GREATER_EQUAL(TSP_graph.TSP_BB_lowerbound(excluded, included), 38);
-
     Graph<int> Test_graph = TSP_smallTestGraph();
 
     TSP_path = Test_graph.TSP_bruteForce(1,1);
-
-    ASSERT_EQUAL_DELTA(42.5, TSP_graph.TSP_BB_lowerbound(excluded, included), 0.1);
-   // ASSERT_LESS_EQUAL(Test_graph.TSP_BB_lowerbound(get<0>(TSP_path)), 19);
-   // ASSERT_GREATER_EQUAL(Test_graph.TSP_BB_lowerbound(get<0>(TSP_path)), 16);
 
     ASSERT_EQUAL_DELTA(17.5, Test_graph.TSP_BB_lowerbound(excluded, included), 0.1);
 
@@ -300,8 +297,82 @@ void test_LowerBound(){
 
     ASSERT_EQUAL_DELTA(21.0, Test_graph.TSP_BB_lowerbound(excluded, included), 0.1);
 
+    included.clear(); excluded.clear();
+
+    test_Graph = Test_Graph_9();
+
+    TSP_graph = test_Graph.makeTSP();
+
+    for(int i = 1; i< TSP_graph.getNumVertex()+1 ;i++) {
+            double res = get<1>(TSP_graph.TSP_bruteForce(i, i));
+            ASSERT_LESS_EQUAL(TSP_graph.TSP_BB_lowerbound(excluded, included), res);
+    }
 }
 
+void test_GreadyAlgorithm(){
+
+    Graph<int> test_Graph = Test_Graph_9();
+
+    Graph<int> TSP_graph = test_Graph.makeTSP();
+
+    pair<vector<int>,double> TSP_Path = TSP_graph.TSP_Gready(1, 5);
+
+    ASSERT_EQUAL(get<0>(TSP_Path).size(), TSP_graph.getNumVertex()+1);
+
+    ASSERT_EQUAL(get<0>(TSP_Path).at(get<0>(TSP_Path).size()-1), 5);
+
+    ASSERT_EQUAL(get<0>(TSP_Path).at(0), 1);
+
+    for(int path_point : get<0>(TSP_Path))
+        if(path_point!= 1 || path_point != 5){
+        bool in = false;
+        for(int i = 0; i < TSP_graph.getVertexSet().size(); i++)
+            if(path_point == TSP_graph.getVertexSet().at(i)->getInfo())
+                in = true;
+        ASSERT_EQUAL(true, in);
+    }
+
+    test_Graph = TSP_smallTestGraph();
+
+    TSP_Path = test_Graph.TSP_Gready(1, 1);
+
+    ASSERT_EQUAL(get<0>(TSP_Path).size(), test_Graph.getNumVertex()+1);
+
+    ASSERT_EQUAL(get<0>(TSP_Path).at(get<0>(TSP_Path).size()-1), 1);
+
+    ASSERT_EQUAL(get<0>(TSP_Path).at(0), 1);
+
+    for(int path_point : get<0>(TSP_Path))
+        if(path_point!= 1 ){
+            bool in = false;
+            for(int i = 0; i < TSP_graph.getVertexSet().size(); i++)
+                if(path_point == TSP_graph.getVertexSet().at(i)->getInfo())
+                    in = true;
+            ASSERT_EQUAL(true, in);
+        }
+
+
+}
+
+///@todo LowerBound : Finish lower bound function to a working one with the minimal spanning tree
+void test_GoodLowerBound(){
+
+    Graph<int> test_Graph = Test_Graph_9();
+
+    Graph<int> TSP_graph = test_Graph.makeTSP();
+
+    vector<pair<int, int>> excluded, included;
+
+    for(int i = 1; i< TSP_graph.getNumVertex()+1 ;i++) {
+        for (int j = 1; j < TSP_graph.getNumVertex() + 1; j++) {
+            cout << "Testing with i: " << i << "  j: " << j << endl;
+            double res = get<1>(TSP_graph.TSP_bruteForce(i, j));
+            ASSERT_LESS_EQUAL(TSP_graph.TSP_BB_lowerbound(excluded, included), res);
+        }
+    }
+}
+
+///@todo Branch&Bound : Finish the function branch and bound using the lower bound function
 void test_TSPBranchBound(){
 
     Graph<int> test_Graph = Test_Graph_9();
@@ -336,8 +407,25 @@ void test_TSPBranchBound(){
     return;
 }
 
-// void test_floydWarshall() {
-/*Graph<int> myGraph = CreateTestGraph();
+///@todo MinimalSpanTree: Finish the minimal Spanning tree with Burovka Algorithm (for use with B&B)
+
+void test_minimalSpanTree(){
+
+    Graph<int> test_Graph = Test_Graph_9();
+
+    Graph<int> TSP_graph = test_Graph.makeTSP();
+
+
+}
+
+///@todo PathReconstruction: Compute the path reconstruction for the TSP problem (turn path to work with the streets)
+
+////@todo Implement User Interface: Take the User input (algorithm selection) and make a run from start to finsh with a OPSTM
+
+///@todo (Optional) Tabu Search : Implement the genetic algorithm Tabu search for the TSP problem
+
+ void test_floydWarshall() {
+Graph<int> myGraph = CreateTestGraph();
 
 //para testar o metodo unweightedShortestPath
 myGraph.floydWarshallShortestPath();
@@ -364,8 +452,8 @@ ss.str("");
 for(unsigned int i = 0; i < path.size(); i++) {
         ss << path[i] << " ";
 }
-ASSERT_EQUAL("7 6 4 3 1 ", ss.str());*/
-//}
+ASSERT_EQUAL("7 6 4 3 1 ", ss.str());
+}
 
 void runSuite_GraphAlgorithms() {
     cute::suite s;
@@ -376,8 +464,10 @@ void runSuite_GraphAlgorithms() {
     s.push_back(CUTE(test_TSPmaker));
     s.push_back(CUTE(test_TSPBruteForce));
     s.push_back(CUTE(test_LowerBound));
+    s.push_back(CUTE(test_GoodLowerBound));
     s.push_back(CUTE(test_TSPBranchBound));
-    //s.push_back(CUTE(test_floydWarshall));
+    s.push_back(CUTE(test_floydWarshall));
+    s.push_back(CUTE(test_GreadyAlgorithm));
 
     cute::ide_listener<> lis;
     cute::makeRunner(lis)(s, "Graph Algorithms Testing");
