@@ -48,6 +48,8 @@ public:
     T extractTop();
     T peakTop();
 
+    K getCriteria(T);
+
     int size();
     bool isLess_op() const;
     void setLess_op(bool less_op);
@@ -131,6 +133,14 @@ template<class T, class K>
 bool PriQueue<T,K>::isHeap() {
     return std::is_heap(this->data.begin(), this->data.end(), this->comp_func);
 }
+
+template<class T, class K>
+K PriQueue<T,K>::getCriteria(T par){
+    for(auto element : this->data)
+        if(par == element.elem)
+            return element.priority;
+    return 0.0;
+};
 
 template<class T, class K>
 bool PriQueue<T,K>::eraseElem(T elem) {

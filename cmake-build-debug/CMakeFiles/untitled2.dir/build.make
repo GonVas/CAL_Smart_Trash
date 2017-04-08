@@ -60,15 +60,15 @@ include CMakeFiles/untitled2.dir/flags.make
 CMakeFiles/untitled2.dir/main.cpp.o: CMakeFiles/untitled2.dir/flags.make
 CMakeFiles/untitled2.dir/main.cpp.o: ../main.cpp
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/gonvas/CLionProjects/untitled2/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/untitled2.dir/main.cpp.o"
-	/usr/bin/clang++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/untitled2.dir/main.cpp.o -c /home/gonvas/CLionProjects/untitled2/main.cpp
+	/usr/bin/g++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/untitled2.dir/main.cpp.o -c /home/gonvas/CLionProjects/untitled2/main.cpp
 
 CMakeFiles/untitled2.dir/main.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/untitled2.dir/main.cpp.i"
-	/usr/bin/clang++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/gonvas/CLionProjects/untitled2/main.cpp > CMakeFiles/untitled2.dir/main.cpp.i
+	/usr/bin/g++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/gonvas/CLionProjects/untitled2/main.cpp > CMakeFiles/untitled2.dir/main.cpp.i
 
 CMakeFiles/untitled2.dir/main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/untitled2.dir/main.cpp.s"
-	/usr/bin/clang++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/gonvas/CLionProjects/untitled2/main.cpp -o CMakeFiles/untitled2.dir/main.cpp.s
+	/usr/bin/g++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/gonvas/CLionProjects/untitled2/main.cpp -o CMakeFiles/untitled2.dir/main.cpp.s
 
 CMakeFiles/untitled2.dir/main.cpp.o.requires:
 
@@ -84,15 +84,15 @@ CMakeFiles/untitled2.dir/main.cpp.o.provides.build: CMakeFiles/untitled2.dir/mai
 CMakeFiles/untitled2.dir/src/Graph/Test.cpp.o: CMakeFiles/untitled2.dir/flags.make
 CMakeFiles/untitled2.dir/src/Graph/Test.cpp.o: ../src/Graph/Test.cpp
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/gonvas/CLionProjects/untitled2/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/untitled2.dir/src/Graph/Test.cpp.o"
-	/usr/bin/clang++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/untitled2.dir/src/Graph/Test.cpp.o -c /home/gonvas/CLionProjects/untitled2/src/Graph/Test.cpp
+	/usr/bin/g++   $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/untitled2.dir/src/Graph/Test.cpp.o -c /home/gonvas/CLionProjects/untitled2/src/Graph/Test.cpp
 
 CMakeFiles/untitled2.dir/src/Graph/Test.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/untitled2.dir/src/Graph/Test.cpp.i"
-	/usr/bin/clang++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/gonvas/CLionProjects/untitled2/src/Graph/Test.cpp > CMakeFiles/untitled2.dir/src/Graph/Test.cpp.i
+	/usr/bin/g++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/gonvas/CLionProjects/untitled2/src/Graph/Test.cpp > CMakeFiles/untitled2.dir/src/Graph/Test.cpp.i
 
 CMakeFiles/untitled2.dir/src/Graph/Test.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/untitled2.dir/src/Graph/Test.cpp.s"
-	/usr/bin/clang++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/gonvas/CLionProjects/untitled2/src/Graph/Test.cpp -o CMakeFiles/untitled2.dir/src/Graph/Test.cpp.s
+	/usr/bin/g++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/gonvas/CLionProjects/untitled2/src/Graph/Test.cpp -o CMakeFiles/untitled2.dir/src/Graph/Test.cpp.s
 
 CMakeFiles/untitled2.dir/src/Graph/Test.cpp.o.requires:
 

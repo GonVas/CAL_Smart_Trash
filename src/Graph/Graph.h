@@ -13,6 +13,10 @@
 #include "PriQueue.hpp"
 #include <string>
 #include <unistd.h>
+#include <thread>
+#include <mutex>
+#include <cstdlib>
+#include "DisjointSet.hpp"
 
 using namespace std;
 
@@ -23,6 +27,8 @@ const int NOT_VISITED = 0;
 const int BEING_VISITED = 1;
 const int DONE_VISITED = 2;
 const int INT_INFINITY = std::numeric_limits<int>::max();
+
+mutex lck_edge;
 
 /*
 template <class T>
@@ -246,6 +252,64 @@ public:
         vector<T> final;
         double final_dis = 0.0;
 
+        /*
+        KRUSKAL(G):
+        1 final = ∅
+        2 foreach v ∈ G.V: //Graph vertices
+        3    MAKE-SET(v)
+        4 foreach (u, v) in G.E ordered by weight(u, v), increasing:   // G.E Graph edges
+        5    if FIND-SET(u) ≠ FIND-SET(v):
+        6       final = final ∪ {(u, v)}
+        7       UNION(u, v)
+        8 return final
+        */
+
+
+        vector<T> verts_info;
+        vector<T *> pverts;
+        for(auto vertex: this->getVertexSet()) {
+            verts_info.push_back(vertex->info);
+            pverts.push_back(&(verts_info.at(verts_info.size()-1)));
+        }
+
+        auto Set = DisjointSet<T>::make_Set( pverts);
+        PriQueue<pair<T,T>, double> edges_sort; int edge_numb = 0;
+
+        for(auto vertex : this->getVertexSet())
+            for(auto edge : vertex->adj) {
+                edges_sort.addWithPriority(pair<T,T>(vertex->info, edge.dest->info), edge.weight);
+                edge_numb++;
+            }
+
+        map<T, bool> exist;
+        for(auto vert : this->getVertexSet())
+            exist[vert->info] = false;
+
+        for (int i = 0; i < edge_numb; ++i) {
+            pair<T, T> top_edge = edges_sort.peakTop();
+            if (*Set[top_edge.first - 1].get_parent() != *Set[top_edge.second - 1].get_parent()) {
+                if (final.empty()) {
+                    final.push_back(top_edge.first); exist[top_edge.first] = true;
+                    final.push_back(top_edge.second); exist[top_edge.second] = true;
+                    final_dis += this->getEdge(top_edge.first, top_edge.second);
+                } else {
+                      if(!exist[top_edge.first]) {
+                        final.push_back(top_edge.first);
+                        exist[top_edge.first] = true;
+                    }
+                    else if(!exist[top_edge.second]) {
+                        final.push_back(top_edge.second);
+                        exist[top_edge.second] = true;
+                    }
+                    else
+                        final_dis -= edges_sort.getCriteria(top_edge);
+                    final_dis += edges_sort.getCriteria(top_edge);
+                }
+                DisjointSet<T>::Union(&(Set[top_edge.first - 1]), &(Set[top_edge.second - 1]));
+            }
+            edges_sort.extractTop();
+        }
+
         return pair<vector<T>,double>(final, final_dis);
 
     }
@@ -260,28 +324,6 @@ public:
         vector<T> final_path;
 
         this->initVisited();
-/*
-        PriQueue<Edge<T>, double> init_edges;
-
-        for(auto edge: this->getVertexSet().at(this->getNumVertex()-1)->adj)
-            init_edges.addWithPriority(edge, edge.weight);
-
-        final_path.push_back(s);
-        T first = init_edges.extractTop().dest->info;
-        final_path.push_back(first);
-        res += init_edges.peakTop().weight;
-
-        for(auto vertex: this->getVertexSet() )
-            if(vertex->info != s || vertex->info != dest || vertex->visited != true || vertex->info !=  first ) {
-                PriQueue<Edge<T>, double> v_edges;
-                for (auto edge: vertex->adj)
-                    if(edge.dest->visited == false || edge.dest->info != dest ||edge.dest->info != s)
-                        v_edges.addWithPriority(edge, edge.weight);
-                final_path.push_back(v_edges.extractTop().dest->info);
-                res += v_edges.peakTop().weight;
-                vertex->visited = true;
-            } */
-
         Vertex<T> * vertex_to_look;
 
         vector<Vertex<T>*> p_final_path;
@@ -493,7 +535,7 @@ void getfloydWarshallPathAux(int index1, int index2, vector<T> & res)
         return total;
     }
 
-    double TSP_BB_lowerbound(vector<pair<T,T>> exclude_edges, vector<pair<T,T>> include_edges){
+    double TSP_BB_lowerbound2(vector<pair<T,T>> exclude_edges, vector<pair<T,T>> include_edges){
         double ans = 0.0;
 
         for(auto Tpair : include_edges)
@@ -523,6 +565,37 @@ void getfloydWarshallPathAux(int index1, int index2, vector<T> & res)
 
         return ans*0.5;
     }
+
+
+    double TSP_BB_lowerbound(vector<pair<T,T>> exclude_edges, vector<pair<T,T>> include_edges){
+        double ans = get<1>(this->minSpanningTree());
+        /*
+
+        for(auto Tpair : include_edges)
+            exclude_edges.push_back(Tpair);
+
+        set<double> trees;
+
+        for(auto vertex:this->vertexSet) {
+            priority_queue<Edge<T>> s_edges;
+            for (auto edge: vertex->adj) {
+                if (!edge.isEdgeIn(exclude_edges, vertex->info))
+                    s_edges.push(edge);
+            }
+            int left = 2;
+           // ans = get<1>(this->minSpanningTree());
+            double init_ans = ans;
+
+           ans += s_edges.top().weight; s_edges.pop();
+            ans += s_edges.top().weight; s_edges.pop();
+            trees.insert(ans);
+        }
+ */
+      //  auto end = trees.rend();
+      //  ++end;
+        return ans*0.5;
+    }
+
 
     //http://lcm.csa.iisc.ernet.in/dsa/node187.html#fig:tspbb
     //http://stackoverflow.com/questions/22985590/calculating-the-held-karp-lower-bound-for-the-traveling-salesmantsp
@@ -680,6 +753,50 @@ void getfloydWarshallPathAux(int index1, int index2, vector<T> & res)
                 }
             }
         }
+        return TSPgraph;
+    }
+
+
+
+   static void thr_Djistra(T vertex, Graph<T> * TSP_graph , Graph<T> otherGraph) {
+
+
+            otherGraph.dijkstraShortestPath(vertex);
+            double total_weight = 0;
+            for(auto sub_vertex : otherGraph.getVertexSet()) {
+                if(sub_vertex->info != vertex) {
+                    total_weight = otherGraph.getTotalWeightfromPath(vertex, sub_vertex->info);
+                    lck_edge.lock();
+                    TSP_graph->addEdge( vertex ,sub_vertex->info, total_weight);
+                    lck_edge.unlock();
+                }
+            }
+
+    }
+
+
+    Graph<T> makeTSPThreaded(){
+
+        Graph<T> TSPgraph;
+        this->makeSymetric();
+        for(auto vertex : this->getVertexSet())
+            TSPgraph.addVertex(vertex->info);
+
+        int max_threads = 6;
+        int vertex_left = this->getNumVertex();
+
+        thread threads[vertex_left];
+
+        for(int j = 0; j < vertex_left; j++){
+            Graph<T> other = *this;
+            threads[j] = thread(&(Graph::thr_Djistra), this->getVertexSet()[j]->info, &TSPgraph, other);
+
+        }
+
+        for(int i = 0; i < vertex_left; i++)
+            threads[i].join();
+
+
         return TSPgraph;
     }
 

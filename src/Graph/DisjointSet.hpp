@@ -5,6 +5,9 @@
 #ifndef UNTITLED2_DISJOINTSET_HPP
 #define UNTITLED2_DISJOINTSET_HPP
 
+#include <vector>
+
+using namespace std;
 template<class T>
 class DisjointSet{
 
@@ -12,48 +15,48 @@ private:
     T  * parent;
     int rank;
 
-    vector<T*> elements;
 public:
 
-    DisjointSet(vector<T> elemns) {
-        this->parent = &elem;
+    DisjointSet(T * elem) {
+        this->parent = elem;
         this->rank   = 0;
     }
 
-    bool Union( DisjointSet<T> x, DisjointSet<T> y) {
-        auto xRoot = Find(x);
-        auto yRoot = Find(y);
-        // if x and y are already in the same set (i.e., have the same root or representative)
-        if (xRoot == yRoot)
-            return true;
-
-        // x and y are not in same set, so we merge them
-        if (xRoot.rank < yRoot.rank)
-            xRoot.parent = yRoot;
-        else if (xRoot.rank > yRoot.rank)
-            yRoot.parent = xRoot;
-        else
-            yRoot.parent = xRoot;
-            xRoot.rank = xRoot.rank + 1;
+    T * get_parent(){
+        return  parent;
     }
 
-   T Find(T x) {
-       if (this->parent == &x)
-           return x;
-       else
-           return this->Find(&x.parent);
+    int get_rank(){
+        return  rank;
+    }
+
+    static void Union( DisjointSet<T> * x, DisjointSet<T> * y) {
+        // if x and y are already in the same set (i.e., have the same root or representative)
+        if (x->parent == y->parent)
+            return ;
+
+        // x and y are not in same set, so we merge them
+        if (x->rank < y->rank)
+            x->parent = y->parent;
+        else if (x->rank > y->rank)
+            y->parent = x->parent;
+        else
+            y->parent = x->parent;
+            x->rank = x->rank + 1;
+    }
+
+   T Find(DisjointSet<T>  x) {
+       return *x.parent;
    }
 
-    /*
-    T FindRoot(DisjointSet<T> x)
-    if (this.parent == x.parent)
-    return x.parent;
-    else
-    return this.Find(DiskointSet<T>(x.parent));
+    static vector<DisjointSet<T>> make_Set(vector<T *> elems){
+        vector<DisjointSet<T>> res;
 
-    bool operator==(const DisjointSet<T> & rhs ){
-        return (this->parent == rhs.parent)
-    }*/
+        for(auto elem: elems )
+           res.push_back(DisjointSet<T>(elem));
+
+        return res;
+    }
 
 };
 

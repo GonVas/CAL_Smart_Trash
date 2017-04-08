@@ -11,6 +11,8 @@ iostream
 -
 
 /home/gonvas/CLionProjects/untitled2/src/Graph/DisjointSet.hpp
+vector
+-
 
 /home/gonvas/CLionProjects/untitled2/src/Graph/Graph.h
 cmath
@@ -31,6 +33,14 @@ string
 -
 unistd.h
 -
+thread
+-
+mutex
+-
+cstdlib
+-
+DisjointSet.hpp
+/home/gonvas/CLionProjects/untitled2/src/Graph/DisjointSet.hpp
 
 /home/gonvas/CLionProjects/untitled2/src/Graph/PriQueue.hpp
 algorithm
