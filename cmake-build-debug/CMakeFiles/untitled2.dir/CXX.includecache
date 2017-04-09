@@ -41,6 +41,12 @@ cstdlib
 -
 DisjointSet.hpp
 /home/gonvas/CLionProjects/untitled2/src/Graph/DisjointSet.hpp
+random
+-
+ctime
+-
+random
+-
 
 /home/gonvas/CLionProjects/untitled2/src/Graph/PriQueue.hpp
 algorithm

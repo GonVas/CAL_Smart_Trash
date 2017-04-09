@@ -17,6 +17,14 @@
 #include <mutex>
 #include <cstdlib>
 #include "DisjointSet.hpp"
+#include <random>
+#include<ctime>
+
+#include <random>
+
+typedef std::mt19937 rng_type;
+std::uniform_int_distribution<rng_type::result_type> udist(0, 700000);
+rng_type rng;
 
 using namespace std;
 
@@ -52,6 +60,11 @@ template <class T> class Vertex {
     bool processing;
     int indegree;
     int dist;
+
+    int trash = -1;
+    bool trash_picked = false;
+
+    Vertex<T> * parent;
 
 public:
     Vertex(T in);
@@ -247,7 +260,9 @@ public:
     void unweightedShortestPath(const T &v);
     bool isDAG();
 
-    pair<vector<T>,double> minSpanningTree(){
+
+
+    pair<vector<T>,double> minSpanningTree2(){
 
         vector<T> final;
         double final_dis = 0.0;
@@ -329,15 +344,15 @@ public:
         vector<Vertex<T>*> p_final_path;
 
         p_final_path.push_back( this->getVertex(s));
-
-        for(int i = 0; i < this->getNumVertex() -1 ; i++) {
+        p_final_path.at(0)->visited = true;
+        for(int i = 0; i < this->getNumVertex() -2 ; i++) {
             vertex_to_look = p_final_path.at(p_final_path.size() - 1);
             PriQueue<Edge<T>, double> v_edges;
             for (auto edge: vertex_to_look->adj)
-                if(edge.dest->visited == false || edge.dest->info != dest ||edge.dest->info != s )
+                if(edge.dest->visited == false && edge.dest->info != dest &&edge.dest->info != s )
                     v_edges.addWithPriority(edge, edge.weight);
             p_final_path.push_back(v_edges.peakTop().dest);
-            cout << "Added from " << p_final_path[p_final_path.size()-2]->info << " to : " << p_final_path[p_final_path.size()-1]->info << " dis : " << v_edges.peakTop().weight;
+        //    cout << "  Added from " << p_final_path[p_final_path.size()-2]->info << " to " << p_final_path[p_final_path.size()-1]->info << " dis : " << v_edges.peakTop().weight;
             res += v_edges.extractTop().weight;
             vertex_to_look->visited = true;
         }
@@ -350,9 +365,9 @@ public:
 
         double initres =res;
         res += this->getEdge(final_path.at(final_path.size()-2), dest);
-        cout << "Addes to  final " << res -initres << endl;
+       // cout << "Addes to  final " << res -initres << endl;
 
-        cout << "Distance is : " << res << endl;
+       // cout << "Distance is : " << res << endl;
         return pair<vector<T>,double>(final_path, res);
     }
 
@@ -403,6 +418,37 @@ public:
 
     }
 
+    pair<T,T> genGarageLand(){
+        int garage_i = (rand() % this->getNumVertex());
+        int landfill_i;
+        do{
+            landfill_i = (rand() % this->getNumVertex());
+        }while (garage_i == landfill_i);
+
+        T garage = this->getVertexSet()[garage_i]->info;
+        T landfill = this->getVertexSet()[landfill_i]->info;
+
+        return pair<T,T>(garage,landfill);
+    }
+
+    void genTrashcans(pair<T,T> land_garage){
+
+        int how_many = (this->getNumVertex() -2)/3;
+
+        vector<T> generated;
+        for (int i = 0; i < how_many; ++i) {
+            T gen;
+            do{
+               gen = this->getVertexSet()[rand() % this->getNumVertex()]->info;
+            } while(gen == land_garage.first || gen == land_garage.second || find(generated.begin(), generated.end(), gen)!= generated.end() );
+            generated.push_back(gen);
+        }
+        for(auto gened : generated){
+            this->getVertex(gened)->trash = 50;
+        }
+
+    }
+
 vector<T> getfloydWarshallPath(const T &origin, const T &dest){
 
     int originIndex = -1, destinationIndex = -1;
@@ -444,6 +490,74 @@ vector<T> getfloydWarshallPath(const T &origin, const T &dest){
 
     return res;
 }
+
+    pair<vector<T>, double > solveTruckRun(T begin, T end, vector<T> points){
+
+        points.push_back(begin);
+        points.push_back(end);
+
+        auto gready_res = (this->makeTSPres(points).TSP_Gready(begin, end));
+
+        vector<T> final_path;
+
+
+        for (int i = 1; i < gready_res.first.size(); ++i) {
+            vector<T> reco_path = this->getPathRecons(gready_res.first.at(i-1), gready_res.first.at(i)).first;
+            for(auto t : reco_path)
+                final_path.push_back(t);
+        }
+
+        return pair<vector<T>, double>(gready_res.first,gready_res.second);
+
+    }
+
+    map<T, vector<pair<vector<T>,double>>>  solveTruck(pair<T,T> garage_land, vector<T> trucks){
+
+        map<T, vector<pair<vector<T>, double >>> trucks_runs;
+
+        int numb_trash_cans = this->getNumVertex()-2;
+
+        while(true)
+        for(auto truck : trucks) {
+            int truck_cap = truck;
+            vector<T> trash_to_run;
+            for (auto trash_can : this->getVertexSet())
+                if (trash_can->info != garage_land.first && trash_can->info != garage_land.second &&
+                    trash_can->trash_picked == false) {
+                    if(truck_cap >= trash_can->trash) {
+                        truck_cap -= trash_can->trash;
+                        trash_to_run.push_back(trash_can->info);
+                        trash_can->trash_picked = true;
+                        numb_trash_cans--;
+                    }
+                }
+            if(trucks_runs.find(truck) == trucks_runs.end()) {
+                vector<pair<vector<T>, double >> run;
+                auto solve = this->solveTruckRun(garage_land.first, garage_land.second, trash_to_run);
+                run.push_back(solve);
+                trucks_runs[truck] = run;
+            }
+            else
+                trucks_runs[truck].push_back(this->solveTruckRun(garage_land.second, garage_land.second, trash_to_run));
+            if (numb_trash_cans <= 0)
+                return  trucks_runs;
+        }
+
+    }
+
+    Graph<T> makeTSPres_trash(pair<T,T> garage_land){
+        vector<T> trash_cans;
+        trash_cans.push_back(garage_land.first);
+
+        for(auto vert : vertexSet)
+            if(vert->trash != -1)
+                trash_cans.push_back(vert->info);
+
+        trash_cans.push_back(garage_land.second);
+
+        return this->makeTSPres(trash_cans);
+
+    }
 
     Graph<T> makeTSPres(vector<T> trash_cans){
 
@@ -566,9 +680,97 @@ void getfloydWarshallPathAux(int index1, int index2, vector<T> & res)
         return ans*0.5;
     }
 
+    pair<vector<T>, double> minSpanningTree(T ex_vertex, vector<pair<T,T>> ex_edge, vector<pair<T,T>> in_edge){
+        vector<T> final_path; double final_dis = 0.0;
+        map<T,bool> exists;
+        //Init map of existing
+        for(auto vertex: this->getVertexSet())
+            exists[vertex->info] = false;
+
+        //Make disjoint sets
+        vector<T> verts_info;
+        vector<T *> pverts;
+        for(auto vertex: this->getVertexSet()) {
+        vertex->parent = vertex;
+        }
+
+        auto dis_set = DisjointSet<T>::make_Set( pverts);
+
+        //include mandatory edges
+        for(auto p_edge : in_edge){
+            final_path.push_back(p_edge.first); final_path.push_back(p_edge.second);
+            exists[p_edge.first] = true; exists[p_edge.first] = true;
+            final_dis += this->getEdge(p_edge.first, p_edge.second);
+            cout << "Mandatoy" << endl;
+//            DisjointSet<T>::Union(&dis_set[p_edge.first - 1], &dis_set[p_edge.first - 2]);
+        }
+
+        //sort edges
+        PriQueue<pair<T,T>, double> edges_sort; int edge_numb = 0;
+        for(auto vertex : this->getVertexSet())
+            for(auto edge : vertex->adj) {
+                edges_sort.addWithPriority(pair<T,T>(vertex->info, edge.dest->info), edge.weight);
+                edge_numb++;
+            }
+
+        for(int i = 0; i < edge_numb; i++) {
+            pair<T, T> p_edge = edges_sort.extractTop();
+            if (find(ex_edge.begin(), ex_edge.end(), p_edge) == ex_edge.end() &&
+              //      this->getVertex(p_edge.first)->parent != this->getVertex(p_edge.second)->parent &&
+                (dis_set[p_edge.first - 1].get_parent()) != (dis_set[p_edge.second - 1].get_parent()) &&
+                    (p_edge.first != ex_vertex && p_edge.second != ex_vertex)  ){
+
+            //    if(final_path.size() == this->getNumVertex())
+             //       break;
+
+              /*
+                if (!exists[p_edge.first]) {
+                    final_path.push_back(p_edge.first);
+                    exists[p_edge.first] = true;
+                     DisjointSet<T>::Union(&(dis_set[p_edge.first - 1]), &(dis_set[p_edge.second - 1]));
+
+                }
+                if (!exists[p_edge.second]) {
+                    final_path.push_back(p_edge.second);
+                    exists[p_edge.second] = true;
+                    //final_dis += this->getEdge(p_edge.first, p_edge.second);
+//                    cout << "Added : " << p_edge.first << "   " << p_edge.second << "  dis: " << this->getEdge(p_edge.first, p_edge.second) << endl;
+
+                    DisjointSet<T>::Union(&(dis_set[p_edge.first - 1]), &(dis_set[p_edge.second - 1]));
+
+                }
+                */
+             //   cout << "Same set : " << ((dis_set[p_edge.first - 1]).get_parent()) << "   " << ((dis_set[p_edge.second - 1]).get_parent()) << endl;
+
+                final_dis += this->getEdge(p_edge.first, p_edge.second);
+                cout << "Added : " << p_edge.first << "   " << p_edge.second << "  dis: " << this->getEdge(p_edge.first, p_edge.second) << endl;
+               // DisjointSet<T>::Union(&(dis_set[p_edge.first - 1]), &(dis_set[p_edge.second - 1]));
+
+             //   cout<< "First Parent : " << (this->getVertex(p_edge.first)->parent)->info << "  Second Parent : " << (this->getVertex(p_edge.second)->parent)->info << endl;
+
+              //  this->getVertex(p_edge.second)->parent = this->getVertex(p_edge.first)->parent;
+              //  this->getVertex(p_edge.first)->parent = this->getVertex(p_edge.second)->parent;
+
+               // cout<< " \n First Parent : " << (this->getVertex(p_edge.first)->parent)->info << "  Second Parent : " << (this->getVertex(p_edge.second)->parent)->info << endl;
+
+         //       cout << "Same set : " << ((dis_set[p_edge.first - 1]).get_parent()) << "   " << ((dis_set[p_edge.second - 1]).get_parent()) << endl;
+                DisjointSet<T>::Union(&(dis_set[p_edge.first - 1]), &(dis_set[p_edge.second - 1]));
+                if (!exists[p_edge.second]) {
+                    final_path.push_back(p_edge.second);
+                    exists[p_edge.second] = true;
+                }
+                if (!exists[p_edge.first]) {
+                    final_path.push_back(p_edge.first);
+                    exists[p_edge.first] = true;
+                }
+
+            }
+        }
+        return pair<vector<T>, double>(final_path, final_dis);
+    }
 
     double TSP_BB_lowerbound(vector<pair<T,T>> exclude_edges, vector<pair<T,T>> include_edges){
-        double ans = get<1>(this->minSpanningTree());
+//        double ans = get<1>(this->minSpanningTree());
         /*
 
         for(auto Tpair : include_edges)
@@ -593,9 +795,81 @@ void getfloydWarshallPathAux(int index1, int index2, vector<T> & res)
  */
       //  auto end = trees.rend();
       //  ++end;
-        return ans*0.5;
+        return 0.5;
     }
 
+    double tabu_swap(vector<T> & cities , map<pair<T,T>,double> &tabu_list, double max_path, T begin , T end) {
+
+        int city1, city2;
+        double curr;
+
+        rng_type::result_type const seedval = getpid(); // get this from somewhere
+        rng.seed(seedval);
+
+        vector<T> temp_cities = cities;
+        pair<T,T> city_pair;
+        bool invalid;
+        do {
+            temp_cities = cities;
+            rng_type::result_type random_number1  = udist(rng);
+            rng_type::result_type random_number2  = udist(rng);
+            city1 = (random_number1 % (cities.size()-2)) + 1;
+            city2 = (random_number2 % (cities.size()-2)) + 1;
+            T temp = temp_cities[city1];
+            temp_cities[city1] = temp_cities[city2];
+            temp_cities[city2] = temp;
+            curr = this->path_dis(begin, end, temp_cities);
+            city_pair = pair<T,T>(temp_cities[city1] , temp_cities[city2]);
+            if(tabu_list.find( city_pair) == tabu_list.end())
+                tabu_list[city_pair] = 0;
+
+            if(curr < max_path)
+                double reswfefwef = 0.0;
+
+            invalid  = false;
+
+            if(abs(city1-city2) <= 1)
+                invalid = true;
+            if(curr > max_path )
+                invalid = true;
+            if(tabu_list[city_pair] > 0)
+                invalid = true;
+
+        }
+            while(invalid);
+
+        for(auto const &p_cities: tabu_list)
+            if(p_cities.second != 0)
+                p_cities.second == p_cities.second -1;
+
+        tabu_list[city_pair] = 2;
+
+        cities = temp_cities;
+
+        return curr;
+    }
+
+
+    pair<vector<T>, double> tabu_search(T begin, T end, int inter_numb){
+
+
+
+
+        auto gready = this->TSP_Gready(begin, end);
+        vector<T> cities = gready.first;
+
+        map<pair<T,T>,double> tabu_list;
+
+        double max_path = gready.second;
+
+        cout << "Started with : " << max_path << endl;
+
+        double change_path_dis;
+        for (int i = 0; i < inter_numb; ++i)
+            max_path = this->tabu_swap(cities, tabu_list, max_path, begin , end);
+
+        return pair<vector<T>, double>(cities,max_path);
+    }
 
     //http://lcm.csa.iisc.ernet.in/dsa/node187.html#fig:tspbb
     //http://stackoverflow.com/questions/22985590/calculating-the-held-karp-lower-bound-for-the-traveling-salesmantsp

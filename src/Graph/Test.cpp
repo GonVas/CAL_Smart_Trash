@@ -357,7 +357,7 @@ void test_GreadyAlgorithm(){
 
     pair<vector<int>,double> TSP_Path = TSP_graph.TSP_Gready(1, 5);
 
-    ASSERT_EQUAL(get<0>(TSP_Path).size(), TSP_graph.getNumVertex()+1);
+    ASSERT_EQUAL(get<0>(TSP_Path).size(), TSP_graph.getNumVertex());
 
     ASSERT_EQUAL(get<0>(TSP_Path).at(get<0>(TSP_Path).size()-1), 5);
 
@@ -376,7 +376,7 @@ void test_GreadyAlgorithm(){
 
     TSP_Path = test_Graph.TSP_Gready(1, 1);
 
-    ASSERT_EQUAL(get<0>(TSP_Path).size(), test_Graph.getNumVertex()+1);
+    ASSERT_EQUAL(get<0>(TSP_Path).size(), test_Graph.getNumVertex());
 
     ASSERT_EQUAL(get<0>(TSP_Path).at(get<0>(TSP_Path).size()-1), 1);
 
@@ -455,16 +455,20 @@ void test_minimalSpanTree(){
 
     Graph<int> TSP_graph = test_Graph.makeTSP();
 
-    pair<vector<int>,double> mini_span = TSP_graph.minSpanningTree();
+    vector<pair<int,int>> in, ex;
 
-    //ASSERT_EQUAL(TSP_graph.getNumVertex(), get<0>(mini_span).size());
+    pair<vector<int>,double> mini_span = TSP_graph.minSpanningTree(0, in, ex);
+
+    ASSERT_EQUAL(TSP_graph.getNumVertex(), get<0>(mini_span).size());
+
+    ASSERT_LESS_EQUAL(get<1>(mini_span), get<1>(TSP_graph.TSP_bruteForce(2,2)) );
 
     for(auto vertex: TSP_graph.getVertexSet()){
         bool in = false;
         for(auto v : get<0>(mini_span))
             if(vertex->getInfo() == v)
                 in = true;
-        //ASSERT_EQUAL(true, in);
+        ASSERT_EQUAL(true, in);
     }
     cout << "Path : " ;
     for(auto vertex : get<0>(mini_span)){
@@ -510,6 +514,57 @@ void test_PathReconstruction(){
 
 ///@todo (Optional) Tabu Search : Implement the genetic algorithm Tabu search for the TSP problem
 
+void test_tabuSearch(){
+
+    srand(int(time(0)));
+
+    Graph<int> test_Graph = Test_Graph_9();
+
+    Graph<int> TSP_graph = test_Graph.makeTSP();
+
+    pair<vector<int>,double> TSP_Path = TSP_graph.tabu_search(1, 5, 1000);
+
+    ASSERT_EQUAL(get<0>(TSP_Path).size(), TSP_graph.getNumVertex());
+
+    ASSERT_EQUAL(get<0>(TSP_Path).at(get<0>(TSP_Path).size()-1), 5);
+
+    ASSERT_EQUAL(get<0>(TSP_Path).at(0), 1);
+
+    for(int path_point : get<0>(TSP_Path))
+        if(path_point!= 1 || path_point != 5){
+            bool in = false;
+            for(int i = 0; i < TSP_graph.getVertexSet().size(); i++)
+                if(path_point == TSP_graph.getVertexSet().at(i)->getInfo())
+                    in = true;
+            ASSERT_EQUAL(true, in);
+        }
+
+    cout << "Distance is : " << get<1>(TSP_Path) << endl;
+
+    test_Graph = TSP_smallTestGraph();
+
+    TSP_Path = test_Graph.tabu_search(1, 1, 1000);
+
+    ASSERT_EQUAL(get<0>(TSP_Path).size(), test_Graph.getNumVertex());
+
+    ASSERT_EQUAL(get<0>(TSP_Path).at(get<0>(TSP_Path).size()-1), 1);
+
+    ASSERT_EQUAL(get<0>(TSP_Path).at(0), 1);
+
+    for(int path_point : get<0>(TSP_Path))
+        if(path_point!= 1 ){
+            bool in = false;
+            for(int i = 0; i < TSP_graph.getVertexSet().size(); i++)
+                if(path_point == TSP_graph.getVertexSet().at(i)->getInfo())
+                    in = true;
+            ASSERT_EQUAL(true, in);
+        }
+
+    cout << "Distance is : " << get<1>(TSP_Path) << endl;
+
+
+}
+
  void test_floydWarshall() {
 Graph<int> myGraph = CreateTestGraph();
 
@@ -551,12 +606,13 @@ void runSuite_GraphAlgorithms() {
 
     s.push_back(CUTE(test_TSPBruteForce));
    // s.push_back(CUTE(test_LowerBound));
-    s.push_back(CUTE(test_GoodLowerBound));
+   // s.push_back(CUTE(test_GoodLowerBound));
   //  s.push_back(CUTE(test_TSPBranchBound));
     s.push_back(CUTE(test_floydWarshall));
     s.push_back(CUTE(test_GreadyAlgorithm));
    // s.push_back(CUTE(test_minimalSpanTree));
     s.push_back(CUTE(test_PathReconstruction));
+  //  s.push_back(CUTE(test_tabuSearch));
 
     //s.push_back(CUTE(test_TSPmakerThreaded));
 
@@ -569,5 +625,35 @@ int main() {
     runSuite_DisjointSet();
     runSuite_Graph();
     runSuite_GraphAlgorithms();
+
+    srand(time(NULL));
+
+    Graph<int> test_Graph = Test_Graph_9();
+
+    pair<int, int> garage_land = test_Graph.genGarageLand();
+    test_Graph.genTrashcans(garage_land);
+
+    Graph<int> tsp = test_Graph.makeTSPres_trash(garage_land);
+
+    vector<int> trucks;
+    int truck = 50;
+
+    trucks.push_back(truck);
+
+    map<int, vector<pair<vector<int>,double>>> res = tsp.solveTruck(garage_land, trucks);
+
+    test_Graph.floydWarshallShortestPath();
+
+    cout << "Start is: " << garage_land.first << " end is : " << garage_land.second << " Path is : ";
+        for(auto node : res[truck])
+           // for(auto trash_can : node.first)
+            for (int i = 1; i < node.first.size(); ++i) {
+             //   cout << "  real : " << node.first.at(i-1) << "   ";
+                for(auto vert : test_Graph.getPath(node.first.at(i-1), node.first.at(i)))
+                    cout << vert << " ";
+            }
+
+   // cout<< endl << "Distance is: " << res.second << endl;
+
     return 0;
 }
