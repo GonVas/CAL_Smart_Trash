@@ -612,7 +612,7 @@ void runSuite_GraphAlgorithms() {
     s.push_back(CUTE(test_GreadyAlgorithm));
    // s.push_back(CUTE(test_minimalSpanTree));
     s.push_back(CUTE(test_PathReconstruction));
-  //  s.push_back(CUTE(test_tabuSearch));
+    s.push_back(CUTE(test_tabuSearch));
 
     //s.push_back(CUTE(test_TSPmakerThreaded));
 
@@ -628,6 +628,7 @@ int main() {
 
     srand(time(NULL));
 
+    /*
     Graph<int> test_Graph = Test_Graph_9();
 
     pair<int, int> garage_land = test_Graph.genGarageLand();
@@ -637,8 +638,10 @@ int main() {
 
     vector<int> trucks;
     int truck = 50;
+    int truck2 = 50;
 
     trucks.push_back(truck);
+    trucks.push_back(truck2);
 
     map<int, vector<pair<vector<int>,double>>> res = tsp.solveTruck(garage_land, trucks);
 
@@ -648,12 +651,22 @@ int main() {
         for(auto node : res[truck])
            // for(auto trash_can : node.first)
             for (int i = 1; i < node.first.size(); ++i) {
-             //   cout << "  real : " << node.first.at(i-1) << "   ";
+            //    cout << "  real : " << node.first.at(i-1) << "   ";
                 for(auto vert : test_Graph.getPath(node.first.at(i-1), node.first.at(i)))
                     cout << vert << " ";
             }
 
-   // cout<< endl << "Distance is: " << res.second << endl;
+    cout << " \n";
 
+    for(auto node : res[truck2])
+        // for(auto trash_can : node.first)
+        for (int i = 1; i < node.first.size(); ++i) {
+                cout << "  real : " << node.first.at(i-1) << "   ";
+          //  for(auto vert : test_Graph.getPath(node.first.at(i-1), node.first.at(i)))
+            //    cout << vert << " ";
+        }
+
+   // cout<< endl << "Distance is: " << res.second << endl;
+*/
     return 0;
 }

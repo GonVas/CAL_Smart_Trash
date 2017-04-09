@@ -1,4 +1,4 @@
-# 1 "/tmp/compiler-file1"
+# 1 "/tmp/compiler-file"
 # 1 "/home/gonvas/CLionProjects/untitled2/cmake-build-debug//"
 # 1 "<built-in>"
 #define __STDC__ 1
@@ -305,9 +305,9 @@
 
 #define __STDC_NO_THREADS__ 1
 # 1 "<command-line>" 2
-# 1 "/tmp/compiler-file1"
+# 1 "/tmp/compiler-file"
 #define ___CIDR_IGNORE_DEFINITIONS_END 
-# 1306 "/tmp/compiler-file1"
+# 1306 "/tmp/compiler-file"
 ____CIDR_test_query_attribute->enable_if=0
 
 

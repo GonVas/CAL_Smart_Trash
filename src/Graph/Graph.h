@@ -433,7 +433,7 @@ public:
 
     void genTrashcans(pair<T,T> land_garage){
 
-        int how_many = (this->getNumVertex() -2)/3;
+        int how_many = (this->getNumVertex() -2)/1;
 
         vector<T> generated;
         for (int i = 0; i < how_many; ++i) {
@@ -516,6 +516,10 @@ vector<T> getfloydWarshallPath(const T &origin, const T &dest){
         map<T, vector<pair<vector<T>, double >>> trucks_runs;
 
         int numb_trash_cans = this->getNumVertex()-2;
+
+        for(auto trash_can : this->getVertexSet())
+            if (trash_can->info != garage_land.first && trash_can->info != garage_land.second)
+                trash_can->trash = 50;
 
         while(true)
         for(auto truck : trucks) {
@@ -808,7 +812,7 @@ void getfloydWarshallPathAux(int index1, int index2, vector<T> & res)
 
         vector<T> temp_cities = cities;
         pair<T,T> city_pair;
-        bool invalid;
+        bool invalid; int i = 0;
         do {
             temp_cities = cities;
             rng_type::result_type random_number1  = udist(rng);
@@ -835,6 +839,11 @@ void getfloydWarshallPathAux(int index1, int index2, vector<T> & res)
             if(tabu_list[city_pair] > 0)
                 invalid = true;
 
+            if(i > 30){
+                temp_cities = cities;
+                invalid = false;
+            }
+            i++;
         }
             while(invalid);
 
